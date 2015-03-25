@@ -91,14 +91,15 @@ Slingshot.S3Storage = {
 
           "Cache-Control": directive.cacheControl,
           "Content-Disposition": directive.contentDisposition || file.name &&
-            "inline; filename=" + quoteString(file.name, '"')
+            "inline; filename=" + quoteString(file.name, '"'),
+          keyData: key.keyData
         },
 
         bucketUrl = _.isFunction(directive.bucketUrl) ?
           directive.bucketUrl(directive.bucket, directive.region) :
           directive.bucketUrl,
 
-        downloadPath = path.join((directive.cdn || bucketUrl), payload.key),
+        downloadPath = path.join((directive.cdn || bucketUrl), payload.key.dir),
 
         download = url.parse(downloadPath);
 
@@ -109,7 +110,7 @@ Slingshot.S3Storage = {
       download: url.format(download),
       postData: [{
         name: "key",
-        value: payload.key
+        value: payload.key.dir
       }].concat(_.chain(payload).omit("key").map(function (value, name) {
           return !_.isUndefined(value) && {
             name: name,
