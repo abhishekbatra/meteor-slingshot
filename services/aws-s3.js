@@ -79,10 +79,10 @@ Slingshot.S3Storage = {
         policy = new Slingshot.StoragePolicy()
           .expireIn(directive.expire)
           .contentLength(0, Math.min(file.size, directive.maxSize || Infinity)),
-
+		
         payload = {
           key: _.isFunction(directive.key) ?
-            directive.key.call(method, file, meta) : directive.key,
+            directive.key.call(method, file, meta).dir : directive.key.dir,
 
           bucket: directive.bucket,
 
@@ -91,15 +91,14 @@ Slingshot.S3Storage = {
 
           "Cache-Control": directive.cacheControl,
           "Content-Disposition": directive.contentDisposition || file.name &&
-            "inline; filename=" + quoteString(file.name, '"'),
-          keyData: key.keyData
+            "inline; filename=" + quoteString(file.name, '"')
         },
 
         bucketUrl = _.isFunction(directive.bucketUrl) ?
           directive.bucketUrl(directive.bucket, directive.region) :
           directive.bucketUrl,
 
-        downloadPath = path.join((directive.cdn || bucketUrl), payload.key.dir),
+        downloadPath = path.join((directive.cdn || bucketUrl), payload.key),
 
         download = url.parse(downloadPath);
 
@@ -110,13 +109,14 @@ Slingshot.S3Storage = {
       download: url.format(download),
       postData: [{
         name: "key",
-        value: payload.key.dir
+        value: payload.key
       }].concat(_.chain(payload).omit("key").map(function (value, name) {
           return !_.isUndefined(value) && {
             name: name,
             value: value
           };
-      }).compact().value())
+      }).compact().value()),
+      keyData: directive.key.keyData || null
     };
   },
 
