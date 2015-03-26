@@ -72,6 +72,9 @@ Slingshot.S3Storage = {
    */
 
   upload: function (method, directive, file, meta) {
+	var kay = _.isFunction(directive.key) ?
+            directive.key.call(method, file, meta) : directive.key;
+    
     var url = Npm.require("url"),
 
         path = Npm.require("path"),
@@ -81,8 +84,7 @@ Slingshot.S3Storage = {
           .contentLength(0, Math.min(file.size, directive.maxSize || Infinity)),
 		
         payload = {
-          key: _.isFunction(directive.key) ?
-            directive.key.call(method, file, meta).dir : directive.key.dir,
+          key: kay.dir,
 
           bucket: directive.bucket,
 
@@ -116,7 +118,7 @@ Slingshot.S3Storage = {
             value: value
           };
       }).compact().value()),
-      keyData: directive.key.keyData || null
+      keyData: kay.keyData || null
     };
   },
 
