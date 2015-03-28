@@ -101,7 +101,8 @@ Slingshot.S3Storage = {
           directive.bucketUrl,
 
         downloadPath = path.join((directive.cdn || bucketUrl), payload.key),
-
+		downloadPath = downloadPath.replace('/', '//');
+		
         download = url.parse(downloadPath);
 
     this.applySignature(payload, policy, directive);
